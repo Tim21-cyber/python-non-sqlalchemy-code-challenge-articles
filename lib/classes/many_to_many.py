@@ -1,5 +1,8 @@
 class Article:
+    all = []
+
     def __init__(self, author, magazine, title):
+        # validations
         if not isinstance(author, Author):
             raise Exception("author must be an Author instance")
         if not isinstance(magazine, Magazine):
@@ -8,17 +11,29 @@ class Article:
             raise Exception("title must be a string")
         if not (5 <= len(title) <= 50):
             raise Exception("title must be between 5 and 50 characters")
-        
+
         self.author = author
         self.magazine = magazine
-        self.title = title
+        self._title = title  # ✅ assign to backing variable BEFORE defining property
 
+        # register relationships
+        if not hasattr(author, "_articles"):
+            author._articles = []
         author._articles.append(self)
+
+        if not hasattr(magazine, "_articles"):
+            magazine._articles = []
         magazine._articles.append(self)
+
+        # global list
+        Article.all.append(self)
 
     @property
     def title(self):
         return self._title
+
+    def __repr__(self):
+        return f"<Article {self.title}>"
         
 class Author:
     def __init__(self, name):
@@ -27,7 +42,7 @@ class Author:
         if len(name.strip()) == 0:
             raise Exception("name must be longer than 0 characters")
         
-        self.name = name
+        self._name = name
         self._articles = []
 
     @property
@@ -60,7 +75,7 @@ class Magazine:
         if len(category.strip()) == 0:
             raise Exception("category must be longer than 0 characters")
         
-        self.name = name
+        self._name = name
         self.category = category
         self._articles = []
 
